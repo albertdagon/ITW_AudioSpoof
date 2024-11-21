@@ -1,7 +1,6 @@
 # etc
 _*
 exp_result/
-config/
 depreciated/
 datasets/
 release_in_the_wild/
@@ -10,6 +9,7 @@ release_in_the_wild/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *$py.class
+*.pyc
 
 # C extensions
 *.so

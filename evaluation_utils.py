@@ -1,7 +1,9 @@
 import sys
 import os
 
+import torch
 import numpy as np
+from tqdm import tqdm
 
 
 def calculate_tDCF_EER(cm_scores_file,
@@ -333,3 +335,27 @@ def compute_tDCF(bonafide_score_cm, spoof_score_cm, Pfa_asv, Pmiss_asv,
                     C2 / C1))
 
     return tDCF_norm, CM_thresholds
+
+def produce_evaluation_file(data_loader, model, device, save_path, trial_path):
+    """Perform evaluation and save the score to a file"""
+    model.eval()
+    with open(trial_path, "r") as f_trl:
+        trial_lines = f_trl.readlines()
+    fname_list = []
+    score_list = []
+    for batch_x, utt_id in tqdm(data_loader):
+        batch_x = batch_x.to(device)
+        with torch.no_grad():
+            _, batch_out = model(batch_x)
+            batch_score = (batch_out[:, 1]).data.cpu().numpy().ravel()
+        # add outputs
+        fname_list.extend(utt_id)
+        score_list.extend(batch_score.tolist())
+
+    assert len(trial_lines) == len(fname_list) == len(score_list)
+    with open(save_path, "w") as fh:
+        for fn, sco, trl in zip(fname_list, score_list, trial_lines):
+            _, utt_id, _, src, key = trl.strip().split(' ')
+            assert fn == utt_id
+            fh.write("{} {} {} {}\n".format(utt_id, src, key, sco))
+    print("Scores saved to {}".format(save_path))

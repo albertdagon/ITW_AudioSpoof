@@ -1,19 +1,31 @@
-"""
-AASIST
-Copyright (c) 2021-present NAVER Corp.
-MIT license
-"""
-
 import random
 from typing import Union
-
+import ipdb
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
+from s3prl import hub
 
+import sys
 
+class SSLModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = getattr(hub, "wav2vec2")()
+
+    def forward(self, input):
+        # copy input data to temp variable
+        if input.ndim == 3:
+            temp = input[:, :, 0]
+        else:
+            temp = input
+
+        emb = self.model(temp)['hidden_states'][0]
+        return emb
+
+# AASIST Architecture -- see references for details
 class GraphAttentionLayer(nn.Module):
     def __init__(self, in_dim, out_dim, **kwargs):
         super().__init__()
@@ -152,36 +164,42 @@ class HtrgGraphAttentionLayer(nn.Module):
         x1  :(#bs, #node, #dim)
         x2  :(#bs, #node, #dim)
         '''
+        #print('x1',x1.shape)
+        #print('x2',x2.shape)
         num_type1 = x1.size(1)
         num_type2 = x2.size(1)
-
+        #print('num_type1',num_type1)
+        #print('num_type2',num_type2)
         x1 = self.proj_type1(x1)
+        #print('proj_type1',x1.shape)
         x2 = self.proj_type2(x2)
-
+        #print('proj_type2',x2.shape)
         x = torch.cat([x1, x2], dim=1)
-
+        #print('Concat x1 and x2',x.shape)
+        
         if master is None:
             master = torch.mean(x, dim=1, keepdim=True)
-
+            #print('master',master.shape)
         # apply input dropout
         x = self.input_drop(x)
 
         # derive attention map
         att_map = self._derive_att_map(x, num_type1, num_type2)
-
+        #print('master',master.shape)
         # directional edge for master node
         master = self._update_master(x, master)
-
+        #print('master',master.shape)
         # projection
         x = self._project(x, att_map)
-
+        #print('proj x',x.shape)
         # apply batch norm
         x = self._apply_BN(x)
         x = self.act(x)
 
         x1 = x.narrow(1, 0, num_type1)
+        #print('x1',x1.shape)
         x2 = x.narrow(1, num_type1, num_type2)
-
+        #print('x2',x2.shape)
         return x1, x2, master
 
     def _update_master(self, x, master):
@@ -245,7 +263,7 @@ class HtrgGraphAttentionLayer(nn.Module):
 
         att_map = att_board
 
-        # att_map = torch.matmul(att_map, self.att_weight12)
+        
 
         # apply temperature
         att_map = att_map / self.temp
@@ -306,7 +324,6 @@ class GraphPool(nn.Module):
         scores: attention-based weights (#bs, #node, 1)
         h: graph data (#bs, #node, #dim)
         k: ratio of remaining nodes, (float)
-
         returns
         =====
         h: graph pool applied data (#bs, #node', #dim)
@@ -322,93 +339,6 @@ class GraphPool(nn.Module):
         return h
 
 
-class CONV(nn.Module):
-    @staticmethod
-    def to_mel(hz):
-        return 2595 * np.log10(1 + hz / 700)
-
-    @staticmethod
-    def to_hz(mel):
-        return 700 * (10**(mel / 2595) - 1)
-
-    def __init__(self,
-                 out_channels,
-                 kernel_size,
-                 sample_rate=16000,
-                 in_channels=1,
-                 stride=1,
-                 padding=0,
-                 dilation=1,
-                 bias=False,
-                 groups=1,
-                 mask=False):
-        super().__init__()
-        if in_channels != 1:
-
-            msg = "SincConv only support one input channel (here, in_channels = {%i})" % (
-                in_channels)
-            raise ValueError(msg)
-        self.out_channels = out_channels
-        self.kernel_size = kernel_size
-        self.sample_rate = sample_rate
-
-        # Forcing the filters to be odd (i.e, perfectly symmetrics)
-        if kernel_size % 2 == 0:
-            self.kernel_size = self.kernel_size + 1
-        self.stride = stride
-        self.padding = padding
-        self.dilation = dilation
-        self.mask = mask
-        if bias:
-            raise ValueError('SincConv does not support bias.')
-        if groups > 1:
-            raise ValueError('SincConv does not support groups.')
-
-        NFFT = 512
-        f = int(self.sample_rate / 2) * np.linspace(0, 1, int(NFFT / 2) + 1)
-        fmel = self.to_mel(f)
-        fmelmax = np.max(fmel)
-        fmelmin = np.min(fmel)
-        filbandwidthsmel = np.linspace(fmelmin, fmelmax, self.out_channels + 1)
-        filbandwidthsf = self.to_hz(filbandwidthsmel)
-
-        self.mel = filbandwidthsf
-        self.hsupp = torch.arange(-(self.kernel_size - 1) / 2,
-                                  (self.kernel_size - 1) / 2 + 1)
-        self.band_pass = torch.zeros(self.out_channels, self.kernel_size)
-        for i in range(len(self.mel) - 1):
-            fmin = self.mel[i]
-            fmax = self.mel[i + 1]
-            hHigh = (2*fmax/self.sample_rate) * \
-                np.sinc(2*fmax*self.hsupp/self.sample_rate)
-            hLow = (2*fmin/self.sample_rate) * \
-                np.sinc(2*fmin*self.hsupp/self.sample_rate)
-            hideal = hHigh - hLow
-
-            self.band_pass[i, :] = Tensor(np.hamming(
-                self.kernel_size)) * Tensor(hideal)
-
-    def forward(self, x, mask=False):
-        print("TESTING")
-        band_pass_filter = self.band_pass.clone().to(x.device)
-        if mask:
-            A = np.random.uniform(0, 20)
-            A = int(A)
-            A0 = random.randint(0, band_pass_filter.shape[0] - A)
-            band_pass_filter[A0:A0 + A, :] = 0
-        else:
-            band_pass_filter = band_pass_filter
-
-        self.filters = (band_pass_filter).view(self.out_channels, 1,
-                                               self.kernel_size)
-
-        return F.conv1d(x,
-                        self.filters,
-                        stride=self.stride,
-                        padding=self.padding,
-                        dilation=self.dilation,
-                        bias=None,
-                        groups=1)
 
 
 class Residual_block(nn.Module):
@@ -442,7 +372,7 @@ class Residual_block(nn.Module):
 
         else:
             self.downsample = False
-        self.mp = nn.MaxPool2d((1, 3))  # self.mp = nn.MaxPool2d((1,4))
+        
 
     def forward(self, x):
         identity = x
@@ -451,34 +381,40 @@ class Residual_block(nn.Module):
             out = self.selu(out)
         else:
             out = x
+
+        #print('out',out.shape)
         out = self.conv1(x)
 
-        # print('out',out.shape)
+        #print('aft conv1 out',out.shape)
         out = self.bn2(out)
         out = self.selu(out)
         # print('out',out.shape)
         out = self.conv2(out)
         #print('conv2 out',out.shape)
+        
         if self.downsample:
             identity = self.conv_downsample(identity)
 
         out += identity
-        out = self.mp(out)
+        #out = self.mp(out)
         return out
-
 
 class Model(nn.Module):
     def __init__(self, d_args):
-        super().__init__()
+        super(Model, self).__init__()
+
+        
+        # AASIST parameters
         self.d_args = d_args
         filts = d_args["filts"]
         gat_dims = d_args["gat_dims"]
         pool_ratios = d_args["pool_ratios"]
         temperatures = d_args["temperatures"]
 
-        self.conv_time = CONV(out_channels=filts[0],
-                              kernel_size=d_args["first_conv"],
-                              in_channels=1)
+        # Pre-trained model
+        self.ssl_model = SSLModel()
+        self.ssl_fc = nn.Linear(768, filts[0]) # wav2vec2 has 768 hidden dimension
+
         self.first_bn = nn.BatchNorm2d(num_features=1)
 
         self.drop = nn.Dropout(0.5, inplace=True)
@@ -526,16 +462,18 @@ class Model(nn.Module):
         self.out_layer = nn.Linear(5 * gat_dims[1], 2)
 
     def forward(self, x, Freq_aug=False):
-        # (bs, dim)
-        x = x.unsqueeze(1)
-        x = self.conv_time(x, mask=Freq_aug)
-        x = x.unsqueeze(dim=1)
-        x = F.max_pool2d(torch.abs(x), (3, 3))
+        # Pre-trained model
+        x_ssl = self.ssl_model(x)
+        x = self.ssl_fc(x_ssl)
+
+        # Process pre-trained features
+        x = x.transpose(1, 2)  # (bs, feat_out_dim, frame_number)
+        x = x.unsqueeze(1)  # Add channel
+        x = F.max_pool2d(x, (3, 3))
         x = self.first_bn(x)
         x = self.selu(x)
 
-        # get embeddings using encoder
-        # (#bs, #filt, #spec, #seq)
+        # RawNet2-based encoder
         e = self.encoder(x)
 
         # spectral GAT (GAT-S)

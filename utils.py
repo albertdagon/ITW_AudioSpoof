@@ -2,12 +2,15 @@
 Utilization functions
 """
 
-import os
 import random
 import sys
 
 import numpy as np
 import torch
+from torch.utils.data import DataLoader
+
+from data_utils import Dataset_ASVspoof2019_train, Dataset_ASVspoof2019_devNeval, genSpoof_list
+from importlib import import_module
 
 
 def str_to_bool(val):
@@ -155,3 +158,69 @@ def set_seed(seed, config = None):
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = str_to_bool(config["cudnn_deterministic_toggle"])
         torch.backends.cudnn.benchmark = str_to_bool(config["cudnn_benchmark_toggle"])
+
+def get_model(model_config, device):
+    """Define DNN model architecture"""
+    module = import_module("models.{}".format(model_config["architecture"]))
+    _model = getattr(module, "Model")
+    model = _model(model_config).to(device)
+    print(model)
+    nb_params = sum([param.view(-1).size()[0] for param in model.parameters()])
+    print("no. model params:{}".format(nb_params))
+
+    return model
+
+def get_loader(database_path, seed, config):
+    """Return list of PyTorch DataLoaders for train / developement """
+
+    trn_database_path = database_path / "ASVspoof2019_LA_train/"
+    dev_database_path = database_path / "ASVspoof2019_LA_dev/"
+    eval_database_path = database_path / "ASVspoof2019_LA_eval/"
+
+    trn_list_path = database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.train.trn.txt"
+    dev_trial_path = database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt"
+    eval_trial_path = database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt"
+
+    d_label_trn, file_train = genSpoof_list(dir_meta=trn_list_path,
+                                            is_train=True,
+                                            is_eval=False)
+    print("no. training files:", len(file_train))
+
+    train_set = Dataset_ASVspoof2019_train(list_IDs=file_train,
+                                           labels=d_label_trn,
+                                           base_dir=trn_database_path)
+    gen = torch.Generator()
+    gen.manual_seed(seed)
+    trn_loader = DataLoader(train_set,
+                            batch_size=config["batch_size"],
+                            shuffle=True,
+                            drop_last=True,
+                            pin_memory=True,
+                            worker_init_fn=seed_worker,
+                            generator=gen)
+
+    _, file_dev = genSpoof_list(dir_meta=dev_trial_path,
+                                is_train=False,
+                                is_eval=False)
+    print("no. validation files:", len(file_dev))
+
+    dev_set = Dataset_ASVspoof2019_devNeval(list_IDs=file_dev,
+                                            base_dir=dev_database_path)
+    dev_loader = DataLoader(dev_set,
+                            batch_size=config["batch_size"],
+                            shuffle=False,
+                            drop_last=False,
+                            pin_memory=True)
+    
+    file_eval = genSpoof_list(dir_meta=eval_trial_path,
+                              is_train=False,
+                              is_eval=True)
+    eval_set = Dataset_ASVspoof2019_devNeval(list_IDs=file_eval,
+                                             base_dir=eval_database_path)
+    eval_loader = DataLoader(eval_set,
+                             batch_size=config["batch_size"],
+                             shuffle=False,
+                             drop_last=False,
+                             pin_memory=True)
+
+    return trn_loader, dev_loader, eval_loader
