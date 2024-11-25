@@ -5,6 +5,7 @@ depreciated/
 datasets/
 release_in_the_wild/
 *.zip
+samo/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

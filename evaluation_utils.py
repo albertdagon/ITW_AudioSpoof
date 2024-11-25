@@ -375,7 +375,7 @@ def produce_evaluation_file_wild(data_loader, model, device, save_path, trial_pa
         fname_list.extend(utt_id)
         score_list.extend(batch_score.tolist())
         
-        with open(save_path, 'w') as fh:
+        with open(save_path, 'a+') as fh:
             for f, cm in zip(fname_list,score_list):
                 fh.write('{} {}\n'.format(f, cm))
         fh.close()   

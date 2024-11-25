@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from utils import set_seed, get_loader, get_model
 from data_utils import genSpoof_list, Dataset_in_the_wild_eval
-from evaluation_utils import calculate_tDCF_EER, produce_evaluation_file, compute_eer
+from evaluation_utils import calculate_tDCF_EER, produce_evaluation_file, compute_eer, produce_evaluation_file_wild
 
 
 def main(args):
@@ -87,16 +87,19 @@ def main(args):
         model.load_state_dict(dummy_state_dict)
     print("Model loaded : {}".format(config["model_path"]))
     print("Start evaluation...")
-    produce_evaluation_file(
-        eval_loader, model, device, eval_score_path, eval_trial_path
-    )
     if track == "LA":
+        produce_evaluation_file(
+            eval_loader, model, device, eval_score_path, eval_trial_path
+        )
         calculate_tDCF_EER(
             cm_scores_file=eval_score_path,
             asv_score_file=database_path / config["asv_score_path"],
             output_file=model_logs / "t-DCF_EER.txt",
         )
     elif track == "ITW":
+        produce_evaluation_file_wild(
+            eval_loader, model, device, eval_score_path, eval_trial_path
+        )
         eval_to_score_file(eval_score_path, eval_trial_path)
     print("DONE.")
 
