@@ -24,9 +24,9 @@ def genSpoof_list(dir_meta, is_train=False, is_eval=False, is_itw=False):
     elif is_eval:
         for line in l_meta:
             if is_itw:
-                key, _, _ = line.strip().split(" ")
+                key, _, label = line.strip().split(" ")
             else:
-                _, key, _, _, _ = line.strip().split(" ")
+                _, key, _, _, label = line.strip().split(" ")
             # key = line.strip()
             file_list.append(key)
         return file_list

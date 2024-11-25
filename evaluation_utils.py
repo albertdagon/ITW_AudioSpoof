@@ -359,3 +359,24 @@ def produce_evaluation_file(data_loader, model, device, save_path, trial_path):
             assert fn == utt_id
             fh.write("{} {} {} {}\n".format(utt_id, src, key, sco))
     print("Scores saved to {}".format(save_path))
+
+def produce_evaluation_file_wild(data_loader, model, device, save_path, trial_path):
+    """Perform evaluation and save the score to a file"""
+    model.eval()
+    
+    for batch_x,utt_id in tqdm(data_loader):
+        fname_list = []
+        score_list = []  
+        batch_x = batch_x.to(device)
+        with torch.no_grad():
+            _, batch_out = model(batch_x)
+            batch_score = (batch_out[:, 1]).data.cpu().numpy().ravel() 
+        # add outputs
+        fname_list.extend(utt_id)
+        score_list.extend(batch_score.tolist())
+        
+        with open(save_path, 'w') as fh:
+            for f, cm in zip(fname_list,score_list):
+                fh.write('{} {}\n'.format(f, cm))
+        fh.close()   
+    print('Scores saved to {}'.format(save_path))

@@ -164,7 +164,6 @@ def get_model(model_config, device):
     module = import_module("models.{}".format(model_config["architecture"]))
     _model = getattr(module, "Model")
     model = _model(model_config).to(device)
-    print(model)
     nb_params = sum([param.view(-1).size()[0] for param in model.parameters()])
     print("no. model params:{}".format(nb_params))
 

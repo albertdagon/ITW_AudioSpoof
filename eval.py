@@ -4,12 +4,15 @@ import json
 from pathlib import Path
 from shutil import copy
 from importlib import import_module
+import pandas as pd
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import DataLoader
 
 from utils import set_seed, get_loader, get_model
-from evaluation_utils import calculate_tDCF_EER, produce_evaluation_file
+from data_utils import genSpoof_list, Dataset_in_the_wild_eval
+from evaluation_utils import calculate_tDCF_EER, produce_evaluation_file, compute_eer
 
 
 def main(args):
@@ -31,14 +34,17 @@ def main(args):
     device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
     output_dir = Path(args.output_dir)
-    # database_path = Path(config["database_path"])
-    database_path = Path("./datasets/LA/")
-    dev_trial_path = (
-        database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt"
-    )
-    eval_trial_path = (
-        database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt"
-    )
+    database_path = Path(config["database_path"])
+
+    if track == "LA":
+        eval_trial_path = (
+            database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt"
+        )
+    elif track == "ITW":
+        eval_trial_path = (
+            database_path
+            / "in_the_wild.protocol.txt"
+        )
 
     # Create file logs folder for checkpoints
     model_logs = "LA_{}_ep{}_bs{}_train".format(
@@ -49,7 +55,6 @@ def main(args):
     model_logs = output_dir / model_logs
     model_save_path = model_logs / "weights"
     eval_score_path = model_logs / config["eval_output"]
-    writer = SummaryWriter(model_logs)
     os.makedirs(model_save_path, exist_ok=True)
     copy(args.config, model_logs / "config.conf")
 
@@ -57,7 +62,20 @@ def main(args):
     model = get_model(model_config, device)
 
     # Define train and dev loaders
-    _, _, eval_loader = get_loader(database_path, args.seed, config)
+    if track != "ITW":
+        _, _, eval_loader = get_loader(database_path, args.seed, config)
+    else:
+        file_eval = genSpoof_list(dir_meta=eval_trial_path,
+                              is_train=False,
+                              is_eval=True,
+                              is_itw=True)
+        eval_set = Dataset_in_the_wild_eval(list_IDs=file_eval,
+                                                    base_dir=database_path)
+        eval_loader = DataLoader(eval_set,
+                                    batch_size=config["batch_size"],
+                                    shuffle=False,
+                                    drop_last=False,
+                                    pin_memory=True)
 
     # Define optimizer and scheduler
     if not args.debug:
@@ -72,17 +90,34 @@ def main(args):
     produce_evaluation_file(
         eval_loader, model, device, eval_score_path, eval_trial_path
     )
-    calculate_tDCF_EER(
-        cm_scores_file=eval_score_path,
-        asv_score_file=database_path / config["asv_score_path"],
-        output_file=model_logs / "t-DCF_EER.txt",
-    )
+    if track == "LA":
+        calculate_tDCF_EER(
+            cm_scores_file=eval_score_path,
+            asv_score_file=database_path / config["asv_score_path"],
+            output_file=model_logs / "t-DCF_EER.txt",
+        )
+    elif track == "ITW":
+        eval_to_score_file(eval_score_path, eval_trial_path)
     print("DONE.")
-    eval_eer, eval_tdcf = calculate_tDCF_EER(
-        cm_scores_file=eval_score_path,
-        asv_score_file=database_path / config["asv_score_path"],
-        output_file=model_logs / "loaded_model_t-DCF_EER.txt",
-    )
+
+def eval_to_score_file(score_file, cm_key_file):
+    cm_data = pd.read_csv(cm_key_file, sep=' ', header=None)
+    submission_scores = pd.read_csv(score_file, sep=' ', header=None, skipinitialspace=True)
+    if len(submission_scores) != len(cm_data):
+        print('CHECK: submission has %d of %d expected trials.' % (len(submission_scores), len(cm_data)))
+        exit(1)
+
+    if len(submission_scores.columns) > 2:
+        print('CHECK: submission has more columns (%d) than expected (2). Check for leading/ending blank spaces.' % len(submission_scores.columns))
+        exit(1)
+            
+    cm_scores = submission_scores.merge(cm_data, left_on=0, right_on=0, how='inner')  # check here for progress vs eval set
+    bona_cm = cm_scores[cm_scores[2] == 'bona-fide']['1_x'].values
+    spoof_cm = cm_scores[cm_scores[2] == 'spoof']['1_x'].values
+    eer_cm = compute_eer(bona_cm, spoof_cm)[0]
+    out_data = "eer: %.2f\n" % (100*eer_cm)
+    print(out_data)
+    return eer_cm
 
 
 if __name__ == "__main__":
