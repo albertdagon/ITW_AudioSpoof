@@ -140,9 +140,6 @@ def eval_model(args):
             spk_loader.extend(spk)
             tag_loader.extend(tag)
 
-            if i == 4:
-                break
-
         scores = torch.cat(score_loader, 0).data.cpu().numpy()
         labels = torch.cat(idx_loader, 0).data.cpu().numpy()
         eer = compute_eer(scores[labels == 0], scores[labels == 1])[0]
