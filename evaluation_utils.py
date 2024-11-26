@@ -36,14 +36,14 @@ def calculate_tDCF_EER(cm_scores_file,
     asv_data = np.genfromtxt(asv_score_file, dtype=str)
     # asv_sources = asv_data[:, 0]
     asv_keys = asv_data[:, 1]
-    asv_scores = asv_data[:, 2].astype(np.float)
+    asv_scores = asv_data[:, 2].astype(float)
 
     # Load CM scores
     cm_data = np.genfromtxt(cm_scores_file, dtype=str)
     # cm_utt_id = cm_data[:, 0]
     cm_sources = cm_data[:, 1]
-    cm_keys = cm_data[:, 2]
-    cm_scores = cm_data[:, 3].astype(np.float)
+    cm_keys = cm_data[:, 2].astype(int)
+    cm_scores = cm_data[:, 3].astype(float)
 
     # Extract target, nontarget, and spoof scores from the ASV scores
     tar_asv = asv_scores[asv_keys == 'target']
@@ -51,8 +51,8 @@ def calculate_tDCF_EER(cm_scores_file,
     spoof_asv = asv_scores[asv_keys == 'spoof']
 
     # Extract bona fide (real human) and spoof scores from the CM scores
-    bona_cm = cm_scores[cm_keys == 'bonafide']
-    spoof_cm = cm_scores[cm_keys == 'spoof']
+    bona_cm = cm_scores[cm_keys == 0]
+    spoof_cm = cm_scores[cm_keys == 1]
 
     # EERs of the standalone systems and fix ASV operating point to
     # EER threshold
@@ -103,7 +103,7 @@ def calculate_tDCF_EER(cm_scores_file,
             for attack_type in attack_types:
                 _eer = eer_cm_breakdown[attack_type] * 100
                 f_res.write(
-                    f'\tEER {attack_type}\t\t= {_eer:8.9f} % (Equal error rate for {attack_type}\n'
+                    f'\tEER {attack_type}\t\t= {_eer:8.9f} % (Equal error rate for {attack_type})\n'
                 )
         os.system(f"cat {output_file}")
 
