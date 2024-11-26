@@ -131,7 +131,6 @@ def main(args):
             with open(os.path.join(model_data_logs, "train_enroll.log"), "a") as log:
                 log.write(str(epoch) + "\t" + str(samo.center.detach().numpy()) + "\n")
             
-            break
             
         # Validate the model
         print("Begin validation...\n")
