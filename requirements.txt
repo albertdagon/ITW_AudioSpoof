@@ -1,0 +1,8 @@
+ipdb==0.13.13
+numpy==2.1.3
+pandas==2.2.3
+s3prl==0.4.16
+soundfile==0.12.1
+torch==2.5.1
+torchcontrib==0.0.2
+tqdm==4.66.6

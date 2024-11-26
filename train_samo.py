@@ -7,7 +7,7 @@ from collections import defaultdict
 
 import numpy as np
 import torch
-from torch import nn
+from torch import nn, Tensor
 
 from torch.utils.tensorboard import SummaryWriter
 from torchcontrib.optim import SWA
@@ -31,11 +31,6 @@ def main(args):
 
     if track == "ITW":
         raise ValueError("ITW is only for evaluation")
-
-    if "eval_all_best" not in config:
-        config["eval_all_best"] = "True"
-    if "freq_aug" not in config:
-        config["freq_aug"] = "False"
 
     # For reproducibility
     set_seed(args.seed, config)
@@ -87,10 +82,9 @@ def main(args):
     for epoch in tqdm(range(config["num_epochs"])):
         model.train()
 
-        ip1_loader, idx_loader, spk_loader, utt_loader = [], [], [], []
+        ip1_loader, idx_loader = [], []
         trainloss_dict = defaultdict(list)
         devloss_dict = defaultdict(list)
-        testloss_dict = defaultdict(list)
 
         print('\nEpoch: %d ' % (epoch + 1))
         if epoch == 0:
@@ -108,7 +102,7 @@ def main(args):
             labels = labels.to(device)
 
             # forward
-            feats, feat_outputs = model(feat)
+            feats, _ = model(feat)
 
             # Calc loss
             samoloss, _ = samo(feats, labels, spk=spk, enroll=train_enroll, attractor=1)
@@ -137,18 +131,23 @@ def main(args):
             with open(os.path.join(model_data_logs, "train_enroll.log"), "a") as log:
                 log.write(str(epoch) + "\t" + str(samo.center.detach().numpy()) + "\n")
             
+            break
+            
         # Validate the model
+        print("Begin validation...\n")
         model.eval()
         with torch.no_grad():
-            ip1_loader, idx_loader, spk_loader, score_loader = [], [], [], []
+            ip1_loader, idx_loader, score_loader = [], [], []
 
+            print("Updating embeddings...\n")
             dev_enroll = update_embeds(device, model, dev_enroll_loader)
             samo.center = torch.stack(list(dev_enroll.values()))
 
+            print("Validating...\n")
             for i, (feat, labels, spk, utt, tag) in enumerate(tqdm(dev_data_loader)):
-                feat = feat.to(args.device)
-                labels = labels.to(args.device)
-                feats, feat_outputs = model(feat)
+                feat = feat.to(device)
+                labels = labels.to(device)
+                feats, _ = model(feat)
                 samoloss, score = samo.inference(feats, labels, spk, dev_enroll, attractor=1)
                 devloss_dict[monitor_loss].append(samoloss.item())
                 ip1_loader.append(feats)
@@ -171,9 +170,9 @@ def main(args):
         # save best model by lowest val loss
         valLoss = np.nanmean(devloss_dict[monitor_loss])
         if valLoss < prev_loss:
-            torch.save(model.state_dict(), model_save_path)
+            torch.save(model.state_dict(), model_save_path / "best.pth")
             loss_model = samo
-            torch.save(loss_model.state_dict(), os.path.join(model_save_path, 'anti-spoofing_loss_model.pt'))
+            torch.save(loss_model.state_dict(), model_save_path / "loss_model.pth")
 
             prev_loss = valLoss
             early_stop_cnt = 0
@@ -186,7 +185,7 @@ def main(args):
         if early_stop_cnt == 100:
             break
 
-    eval_model(args)
+    eval_model(args, model_save_path / "best.pth")
     print("Saving best model in epoch {}\n".format(best_epoch))
 
 
@@ -205,7 +204,7 @@ def update_embeds(device, enroll_model, loader):
                 enroll_emb_dict[s].append(cm_emb)
 
         for spk in enroll_emb_dict:
-            enroll_emb_dict[spk] = torch.mean(enroll_emb_dict[spk], axis=0)
+            enroll_emb_dict[spk] = Tensor(np.mean(enroll_emb_dict[spk], axis=0))
 
     return enroll_emb_dict
 

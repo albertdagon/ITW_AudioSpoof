@@ -3,22 +3,18 @@ import argparse
 import json
 from pathlib import Path
 from shutil import copy
-from importlib import import_module
 
 import numpy as np
-import pandas as pd
 import torch
-from torch import Tensor
-from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from utils import set_seed, get_loader, get_model
 from evaluation_utils import calculate_tDCF_EER, compute_eer, calculate_tDCF_EER
 from data_utils import genSpoof_list, Dataset_ASV
 from loss import SAMO
-from tqdm import tqdm
 
-def eval_model(args):
+def eval_model(args, train_eval_model=None):
     # Parse configuration file
     with open(args.config, "r") as f_json:
         config = json.loads(f_json.read())
@@ -28,10 +24,8 @@ def eval_model(args):
     optim_config["epochs"] = config["num_epochs"]
     track = config["track"]
 
-    if "eval_all_best" not in config:
-        config["eval_all_best"] = "True"
-    if "freq_aug" not in config:
-        config["freq_aug"] = "False"
+    if train_eval_model is not None:
+        config["model_path"] = train_eval_model
 
     # For reproducibility
     set_seed(args.seed, config)
@@ -45,10 +39,7 @@ def eval_model(args):
             database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.eval.trl.txt"
         )
     elif track == "ITW":
-        eval_trial_path = (
-            database_path
-            / "in_the_wild.protocol.txt"
-        )
+        eval_trial_path = database_path / "in_the_wild.protocol.txt"
 
     # Create file logs folder for checkpoints
     model_logs = "LA_{}_ep{}_bs{}_train".format(
@@ -128,10 +119,7 @@ def eval_model(args):
             labels = labels.to(device)
             feats, _ = model(feat)
 
-            if loss_config["target_only"]:  # loss calculation for target-only speakers
-                _, score = samo(feats, labels, spk, eval_enroll)
-            else:
-                _, score = samo.inference(feats, labels, spk, eval_enroll)
+            _, score = samo.inference(feats, labels, spk, eval_enroll)
 
             ip1_loader.append(feats)
             idx_loader.append(labels)

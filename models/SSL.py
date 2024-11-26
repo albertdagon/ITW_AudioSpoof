@@ -461,7 +461,7 @@ class Model(nn.Module):
 
         self.out_layer = nn.Linear(5 * gat_dims[1], 2)
 
-    def forward(self, x, Freq_aug=False):
+    def forward(self, x):
         # Pre-trained model
         x_ssl = self.ssl_model(x)
         x = self.ssl_fc(x_ssl)
