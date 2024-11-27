@@ -7,16 +7,14 @@ from collections import defaultdict
 
 import numpy as np
 import torch
-from torch import nn, Tensor
-
-from torch.utils.tensorboard import SummaryWriter
+from torch import Tensor
 from torchcontrib.optim import SWA
+from tqdm import tqdm
 
 from utils import create_optimizer, set_seed, str_to_bool, get_model, get_loader
 from evaluation_utils import compute_eer
 from eval_samo import eval_model
 from loss import SAMO
-from tqdm import tqdm
 
 
 def main(args):
@@ -37,7 +35,7 @@ def main(args):
     device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
     output_dir = Path(args.output_dir)
-    database_path = Path("./datasets/LA/")
+    database_path = Path(config["database_path"])
 
     # Create file logs folder for checkpoints
     model_logs = "LA_{}_ep{}_bs{}_train".format(
@@ -124,12 +122,12 @@ def main(args):
 
             # Write loss to file
             with open(os.path.join(model_data_logs, "train_loss.log"), "a") as log:
-                log.write(str(epoch) + "\t" + str(i) + "\t" +
-                          str(trainloss_dict[monitor_loss][-1]) + "\n")
+                log.write("Epoch: " + str(epoch) + "\t" + "Train epoch: " + str(i) + "\t" 
+                          + "Score: " + str(trainloss_dict[monitor_loss][-1]) + "\n")
             
             # Save center
             with open(os.path.join(model_data_logs, "train_enroll.log"), "a") as log:
-                log.write(str(epoch) + "\t" + str(samo.center.detach().numpy()) + "\n")
+                log.write("Epoch: " + str(epoch) + "\t" + "Center: " + str(samo.center.detach().numpy()) + "\n")
             
             
         # Validate the model
@@ -169,7 +167,7 @@ def main(args):
         # save best model by lowest val loss
         valLoss = np.nanmean(devloss_dict[monitor_loss])
         if valLoss < prev_loss:
-            torch.save(model.state_dict(), model_save_path / "best.pth")
+            torch.save(model.state_dict(), config["model_path"])
             loss_model = samo
             torch.save(loss_model.state_dict(), model_save_path / "loss_model.pth")
 
@@ -183,8 +181,8 @@ def main(args):
 
         if early_stop_cnt == 100:
             break
-
-    eval_model(args, model_save_path / "best.pth")
+    
+    eval_model(args)
     print("Saving best model in epoch {}\n".format(best_epoch))
 
 
@@ -209,41 +207,6 @@ def update_embeds(device, enroll_model, loader):
 
 
 
-
-def train_epoch(trn_loader, model, optim, device, scheduler, config):
-    """Train the model for one epoch"""
-    running_loss = 0
-    num_total = 0.0
-    ii = 0
-    model.train()
-
-    # set objective (Loss) functions
-    weight = torch.FloatTensor([0.1, 0.9]).to(device)
-    criterion = nn.CrossEntropyLoss(weight=weight)
-    for batch_x, batch_y in trn_loader:
-        batch_size = batch_x.size(0)
-        num_total += batch_size
-        ii += 1
-        batch_x = batch_x.to(device)
-        batch_y = batch_y.view(-1).type(torch.int64).to(device)
-        _, batch_out = model(batch_x, Freq_aug=str_to_bool(config["freq_aug"]))
-        batch_loss = criterion(batch_out, batch_y)
-        running_loss += batch_loss.item() * batch_size
-        optim.zero_grad()
-        batch_loss.backward()
-        optim.step()
-
-        if config["optim_config"]["scheduler"] in ["cosine", "keras_decay"]:
-            scheduler.step()
-        elif scheduler is None:
-            pass
-        else:
-            raise ValueError("scheduler error, got:{}".format(scheduler))
-
-    running_loss /= num_total
-    return running_loss
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Training for audio spoofing detection system")
     parser.add_argument(
@@ -258,6 +221,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed", type=int, default=40, help="random seed (default: 40)"
     )
-
+    parser.add_argument(
+        "--debug", action='store_true', help="debug mode"
+    )
+    
     args = parser.parse_args()
     main(args)

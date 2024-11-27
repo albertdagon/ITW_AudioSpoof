@@ -14,7 +14,7 @@ from evaluation_utils import calculate_tDCF_EER, compute_eer, calculate_tDCF_EER
 from data_utils import genSpoof_list, Dataset_ASV
 from loss import SAMO
 
-def eval_model(args, train_eval_model=None):
+def eval_model(args):
     # Parse configuration file
     with open(args.config, "r") as f_json:
         config = json.loads(f_json.read())
@@ -23,9 +23,6 @@ def eval_model(args, train_eval_model=None):
     optim_config = config["optim_config"]
     optim_config["epochs"] = config["num_epochs"]
     track = config["track"]
-
-    if train_eval_model is not None:
-        config["model_path"] = train_eval_model
 
     # For reproducibility
     set_seed(args.seed, config)
