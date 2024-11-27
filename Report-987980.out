@@ -1,0 +1,39 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-26-2024 22:35:23
+Job ID:    987980
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+Traceback (most recent call last):
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 232, in <module>
+    main(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 61, in main
+    model = get_model(model_config, device)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/utils.py", line 164, in get_model
+    module = import_module("models.{}".format(model_config["architecture"]))
+  File "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/models/SSL.py", line 3, in <module>
+    import ipdb
+ModuleNotFoundError: No module named 'ipdb'
+srun: error: atl1-1-03-012-28-0: task 0: Exited with exit code 1
+---------------------------------------
+Begin Slurm Epilog: Nov-26-2024 22:35:33
+Job ID:        987980
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:11,vmem=0,walltime=00:00:11,mem=184K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-012-28-0
+---------------------------------------

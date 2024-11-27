@@ -1,0 +1,27 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-26-2024 19:00:00
+Job ID:    987132
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+Traceback (most recent call last):
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 227, in <module>
+    main(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 36, in main
+    device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
+AttributeError: 'Namespace' object has no attribute 'gpu'
+srun: error: atl1-1-03-013-13-0: task 0: Exited with exit code 1
+---------------------------------------
+Begin Slurm Epilog: Nov-26-2024 19:00:13
+Job ID:        987132
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:13,vmem=0,walltime=00:00:13,mem=116K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-013-13-0
+---------------------------------------

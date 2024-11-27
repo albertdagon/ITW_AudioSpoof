@@ -37,7 +37,7 @@ def main(args):
     device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
     output_dir = Path(args.output_dir)
-    database_path = Path("./datasets/LA/")
+    database_path = Path(config["database_path"])
 
     # Create file logs folder for checkpoints
     model_logs = "LA_{}_ep{}_bs{}_train".format(
@@ -258,6 +258,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed", type=int, default=40, help="random seed (default: 40)"
     )
+    # Add the --gpu argument here
+    parser.add_argument(
+        "--gpu", type=int, default=0, help="GPU id to use (default: 0)"
+    )
 
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable debug mode for detailed output"
+    )  # Adding debug argument
+
+    
     args = parser.parse_args()
     main(args)
+ 

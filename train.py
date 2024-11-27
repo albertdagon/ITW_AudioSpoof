@@ -13,7 +13,6 @@ from torchcontrib.optim import SWA
 from utils import create_optimizer, set_seed, str_to_bool, get_model, get_loader
 from evaluation_utils import calculate_tDCF_EER, produce_evaluation_file
 
-
 def main(args):
     # Parse configuration file
     with open(args.config, "r") as f_json:
@@ -37,7 +36,7 @@ def main(args):
 
     output_dir = Path(args.output_dir)
     # database_path = Path(config["database_path"])
-    database_path = Path("./datasets/LA/")
+    database_path = Path("../aasist/LA/")
     dev_trial_path = (
         database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt"
     )
@@ -222,6 +221,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed", type=int, default=40, help="random seed (default: 40)"
     )
+    # Add the --gpu argument here
+    parser.add_argument(
+        "--gpu", type=int, default=0, help="GPU id to use (default: 0)"
+    )
+
+    
 
     args = parser.parse_args()
     main(args)
+

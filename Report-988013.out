@@ -1,0 +1,27 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-26-2024 22:45:25
+Job ID:    988013
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+
+CondaError: Run 'conda init' before 'conda deactivate'
+
+usage: train_samo.py [-h] --config CONFIG [--output_dir OUTPUT_DIR]
+                     [--seed SEED]
+train_samo.py: error: unrecognized arguments: --gpu 0
+srun: error: atl1-1-03-012-28-0: task 0: Exited with exit code 2
+---------------------------------------
+Begin Slurm Epilog: Nov-26-2024 22:45:37
+Job ID:        988013
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:13,vmem=0,walltime=00:00:13,mem=684K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-012-28-0
+---------------------------------------

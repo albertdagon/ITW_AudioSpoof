@@ -1,0 +1,32 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-26-2024 23:41:35
+Job ID:    988105
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+no. model params:297866
+Traceback (most recent call last):
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train_samo.py", line 266, in <module>
+    main(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train_samo.py", line 61, in main
+    train_bona_loader, dev_enroll_loader, eval_enroll_loader, num_centers = get_loader(database_path, args.seed, config)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/utils.py", line 203, in get_loader
+    label_trn, file_train, utt2spk_train, tag_train = genSpoof_list(
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/data_utils.py", line 18, in genSpoof_list
+    with open(dir_meta, "r") as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'datasets/LA/ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.train.trn.txt'
+srun: error: atl1-1-03-012-28-0: task 0: Exited with exit code 1
+---------------------------------------
+Begin Slurm Epilog: Nov-26-2024 23:41:46
+Job ID:        988105
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:11,vmem=0,walltime=00:00:11,mem=364K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-012-28-0
+---------------------------------------

@@ -1,0 +1,49 @@
+---------------------------------------
+Begin Slurm Prolog: Nov-26-2024 22:38:53
+Job ID:    987997
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+
+CondaError: Run 'conda init' before 'conda deactivate'
+
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/s3prl/upstream/byol_s/byol_a/common.py:20: UserWarning: torchaudio._backend.set_audio_backend has been deprecated. With dispatcher enabled, this function is no-op. You can remove the function call.
+  torchaudio.set_audio_backend("sox_io")
+ESPnet is not installed, cannot use espnet_hubert upstream
+The cache for model files in Transformers v4.22.0 has been updated. Migrating your old cache. This is a one-time only operation. You can interrupt this and resume the migration later on by calling `transformers.utils.move_cache()`.
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+Downloading: https://huggingface.co/s3prl/converted_ckpts/resolve/main/wav2vec_small.pt
+Destination: /home/hice1/ayou31/.cache/s3prl/download/aa064e275fe0123a0e1b515f2341bbe4408368510d91d0a6816f2822a6e5acdd.wav2vec_small.pt
+  0%|          | 0.00/181M [00:00<?, ?B/s]  3%|▎         | 6.30M/181M [00:00<00:02, 66.0MB/s]  8%|▊         | 14.7M/181M [00:00<00:02, 79.2MB/s] 14%|█▍        | 25.6M/181M [00:00<00:01, 94.3MB/s] 24%|██▍       | 44.0M/181M [00:00<00:01, 133MB/s]  36%|███▌      | 65.4M/181M [00:00<00:00, 166MB/s] 46%|████▋     | 84.1M/181M [00:00<00:00, 176MB/s] 59%|█████▊    | 106M/181M [00:00<00:00, 194MB/s]  71%|███████   | 128M/181M [00:00<00:00, 205MB/s] 83%|████████▎ | 151M/181M [00:00<00:00, 207MB/s] 95%|█████████▍| 172M/181M [00:01<00:00, 211MB/s]100%|██████████| 181M/181M [00:01<00:00, 180MB/s]
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/s3prl/upstream/wav2vec2/convert.py:27: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt_state = torch.load(ckpt, map_location="cpu")
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+no. model params:95396304
+no. training files: 25380
+no. training speakers: 20
+no. validation enrollment files: 142
+no. validation enrollment speakers: 10
+Traceback (most recent call last):
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 232, in <module>
+    main(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/train.py", line 64, in main
+    train_loader, dev_loader, eval_loader = get_loader(database_path, args.seed, config)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/utils.py", line 279, in get_loader
+    target_only=config["loss"]["target_only"],
+TypeError: string indices must be integers
+srun: error: atl1-1-03-012-28-0: task 0: Exited with exit code 1
+---------------------------------------
+Begin Slurm Epilog: Nov-26-2024 22:39:31
+Job ID:        987997
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:38,vmem=0,walltime=00:00:38,mem=7000K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-012-28-0
+---------------------------------------
