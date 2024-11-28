@@ -1,0 +1,4 @@
+name: audio_spoof
+channels:
+  - defaults
+prefix: /home/hice1/ayou31/scratch/.conda/envs/audio_spoof
