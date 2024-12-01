@@ -36,8 +36,7 @@ def main(args):
     device = torch.device(f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu")
 
     output_dir = Path(args.output_dir)
-    # database_path = Path(config["database_path"])
-    database_path = Path("./datasets/LA/")
+    database_path = Path(config["database_path"])
     dev_trial_path = (
         database_path / "ASVspoof2019_LA_cm_protocols/ASVspoof2019.LA.cm.dev.trl.txt"
     )
@@ -218,6 +217,9 @@ if __name__ == "__main__":
         type=str,
         help="output directory for results",
         default="./exp_result",
+    )
+    parser.add_argument(
+        "--gpu", type=int, default=0, help="GPU id to use (default: 0)"
     )
     parser.add_argument(
         "--seed", type=int, default=40, help="random seed (default: 40)"

@@ -138,6 +138,9 @@ if __name__ == "__main__":
         "--seed", type=int, default=40, help="random seed (default: 40)"
     )
     parser.add_argument(
+        "--gpu", type=int, default=0, help="GPU id to use (default: 0)"
+    )
+    parser.add_argument(
         "--debug", action='store_true', help="debug mode"
     )
 
