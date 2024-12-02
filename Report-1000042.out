@@ -1,0 +1,56 @@
+---------------------------------------
+Begin Slurm Prolog: Dec-02-2024 10:47:42
+Job ID:    1000042
+User ID:   ayou31
+Account:   coc
+Job name:  HGX_H100_Example
+Partition: ice-gpu
+---------------------------------------
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/s3prl/upstream/byol_s/byol_a/common.py:20: UserWarning: torchaudio._backend.set_audio_backend has been deprecated. With dispatcher enabled, this function is no-op. You can remove the function call.
+  torchaudio.set_audio_backend("sox_io")
+ESPnet is not installed, cannot use espnet_hubert upstream
+Downloading: https://huggingface.co/s3prl/converted_ckpts/resolve/main/wavlm_large.pt
+Destination: /home/hice1/ayou31/.cache/s3prl/download/f2d5200177fd6a33b278b7b76b454f25cd8ee866d55c122e69fccf6c7467d37d.wavlm_large.pt
+  0%|          | 0.00/1.18G [00:00<?, ?B/s]  2%|▏         | 24.0M/1.18G [00:00<00:04, 248MB/s]  4%|▍         | 47.7M/1.18G [00:00<00:05, 235MB/s]  6%|▌         | 70.1M/1.18G [00:00<00:05, 215MB/s]  8%|▊         | 90.8M/1.18G [00:00<00:05, 199MB/s] 10%|▉         | 118M/1.18G [00:00<00:05, 227MB/s]  12%|█▏        | 141M/1.18G [00:00<00:04, 232MB/s] 14%|█▎        | 165M/1.18G [00:00<00:04, 238MB/s] 16%|█▌        | 188M/1.18G [00:00<00:04, 236MB/s] 18%|█▊        | 211M/1.18G [00:00<00:04, 238MB/s] 19%|█▉        | 234M/1.18G [00:01<00:04, 234MB/s] 21%|██▏       | 257M/1.18G [00:01<00:04, 236MB/s] 23%|██▎       | 280M/1.18G [00:01<00:04, 230MB/s] 25%|██▌       | 302M/1.18G [00:01<00:04, 211MB/s] 27%|██▋       | 325M/1.18G [00:01<00:04, 220MB/s] 29%|██▉       | 348M/1.18G [00:01<00:03, 225MB/s] 31%|███       | 371M/1.18G [00:01<00:03, 231MB/s] 33%|███▎      | 394M/1.18G [00:01<00:03, 232MB/s] 35%|███▍      | 416M/1.18G [00:01<00:03, 232MB/s] 36%|███▋      | 438M/1.18G [00:02<00:03, 229MB/s] 38%|███▊      | 461M/1.18G [00:02<00:03, 231MB/s] 40%|████      | 485M/1.18G [00:02<00:03, 236MB/s] 42%|████▏     | 507M/1.18G [00:02<00:03, 236MB/s] 44%|████▍     | 530M/1.18G [00:02<00:02, 237MB/s] 46%|████▌     | 553M/1.18G [00:02<00:02, 236MB/s] 48%|████▊     | 575M/1.18G [00:02<00:02, 234MB/s] 50%|████▉     | 598M/1.18G [00:02<00:02, 234MB/s] 52%|█████▏    | 620M/1.18G [00:02<00:02, 230MB/s] 53%|█████▎    | 644M/1.18G [00:02<00:02, 235MB/s] 55%|█████▌    | 666M/1.18G [00:03<00:02, 225MB/s] 57%|█████▋    | 690M/1.18G [00:03<00:02, 234MB/s] 59%|█████▉    | 714M/1.18G [00:03<00:02, 237MB/s] 61%|██████    | 737M/1.18G [00:03<00:02, 236MB/s] 63%|██████▎   | 759M/1.18G [00:03<00:01, 236MB/s] 65%|██████▍   | 782M/1.18G [00:03<00:01, 236MB/s] 67%|██████▋   | 805M/1.18G [00:03<00:01, 239MB/s] 69%|██████▉   | 828M/1.18G [00:03<00:01, 238MB/s] 71%|███████   | 852M/1.18G [00:03<00:01, 242MB/s] 73%|███████▎  | 875M/1.18G [00:03<00:01, 242MB/s] 75%|███████▍  | 898M/1.18G [00:04<00:01, 240MB/s] 77%|███████▋  | 921M/1.18G [00:04<00:01, 237MB/s] 78%|███████▊  | 944M/1.18G [00:04<00:01, 236MB/s] 80%|████████  | 966M/1.18G [00:04<00:01, 231MB/s] 82%|████████▏ | 990M/1.18G [00:04<00:00, 238MB/s] 84%|████████▍ | 0.99G/1.18G [00:04<00:00, 237MB/s] 86%|████████▌ | 1.01G/1.18G [00:04<00:00, 224MB/s] 88%|████████▊ | 1.04G/1.18G [00:04<00:00, 238MB/s] 90%|█████████ | 1.06G/1.18G [00:04<00:00, 239MB/s] 92%|█████████▏| 1.08G/1.18G [00:04<00:00, 239MB/s] 94%|█████████▍| 1.10G/1.18G [00:05<00:00, 237MB/s] 96%|█████████▌| 1.13G/1.18G [00:05<00:00, 228MB/s] 98%|█████████▊| 1.15G/1.18G [00:05<00:00, 236MB/s]100%|█████████▉| 1.17G/1.18G [00:05<00:00, 197MB/s]100%|██████████| 1.18G/1.18G [00:05<00:00, 230MB/s]
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/s3prl/upstream/wavlm/expert.py:37: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(ckpt)
+/home/hice1/ayou31/.local/lib/python3.10/site-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+/storage/ice1/1/7/ayou31/ITW_AudioSpoof/eval_samo.py:83: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model.load_state_dict(torch.load(config["model_path"], map_location=device))
+no. model params:315822736
+no. training files: 25380
+no. training speakers: 20
+no. validation enrollment files: 142
+no. validation enrollment speakers: 10
+no. validation files: 23780
+no. eval enrollment files: 696
+no. eval enrollment speakers: 48
+no. eval files: 69252
+Traceback (most recent call last):
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/eval_samo.py", line 190, in <module>
+    main(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/eval_samo.py", line 163, in main
+    eval_model(args)
+  File "/storage/ice1/1/7/ayou31/ITW_AudioSpoof/eval_samo.py", line 83, in eval_model
+    model.load_state_dict(torch.load(config["model_path"], map_location=device))
+  File "/home/hice1/ayou31/.local/lib/python3.10/site-packages/torch/serialization.py", line 1319, in load
+    with _open_file_like(f, "rb") as opened_file:
+  File "/home/hice1/ayou31/.local/lib/python3.10/site-packages/torch/serialization.py", line 659, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/home/hice1/ayou31/.local/lib/python3.10/site-packages/torch/serialization.py", line 640, in __init__
+    super().__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: './models/weights/check.pth'
+srun: error: atl1-1-03-012-18-0: task 0: Exited with exit code 1
+---------------------------------------
+Begin Slurm Epilog: Dec-02-2024 10:48:08
+Job ID:        1000042
+Array Job ID:  _4294967294
+User ID:       ayou31
+Account:       coc
+Job name:      HGX_H100_Example
+Resources:     cpu=1,gres/gpu:h100=1,mem=224G,node=1
+Rsrc Used:     cput=00:00:27,vmem=0,walltime=00:00:27,mem=2400K,energy_used=0
+Partition:     ice-gpu
+Nodes:         atl1-1-03-012-18-0
+---------------------------------------

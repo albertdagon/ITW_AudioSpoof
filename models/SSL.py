@@ -13,8 +13,10 @@ import sys
 class SSLModel(nn.Module):
     def __init__(self):
         super().__init__()
-        self.model = getattr(hub, "wav2vec2")()
-
+         
+        #self.model = getattr(hub, "wav2vec2")()
+        self.model = getattr(hub, "wavlm_large")()
+        
     def forward(self, input):
         # copy input data to temp variable
         if input.ndim == 3:
@@ -413,7 +415,7 @@ class Model(nn.Module):
 
         # Pre-trained model
         self.ssl_model = SSLModel()
-        self.ssl_fc = nn.Linear(768, filts[0]) # wav2vec2 has 768 hidden dimension
+        self.ssl_fc = nn.Linear(1024, filts[0]) # wav2vec2 has 768 hidden dimension
 
         self.first_bn = nn.BatchNorm2d(num_features=1)
 

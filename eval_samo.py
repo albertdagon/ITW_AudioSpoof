@@ -180,5 +180,11 @@ if __name__ == "__main__":
         "--debug", action='store_true', help="debug mode"
     )
 
+    # Add the --gpu argument here                                                                                                                                                                               
+    parser.add_argument(
+        "--gpu", type=int, default=0, help="GPU id to use (default: 0)"
+    )
+
+    
     args = parser.parse_args()
     main(args)
