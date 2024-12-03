@@ -19,7 +19,7 @@ The file `train.py` contains training and validation steps for our model with SA
 
 To train our model:
 ```
-python ./train_samo.py --config ./configs/AASIST.conf
+python ./train.py --config ./configs/AASIST.conf
 ```
 
 To change the default parameters, modify the config files as necessary.
@@ -27,10 +27,8 @@ To change the default parameters, modify the config files as necessary.
 ## Evaluation
 To evaluate our model:
 ```
-python ./eval_samo.py --config ./configs/AASIST.conf
+python ./eval.py --config ./configs/AASIST.conf
 ```
-
-The output will be shown as `Test EER: 0.008751418248624953`
 
 ## Acknowledgement
 This is built upon the following open-source repos:
