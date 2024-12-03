@@ -15,7 +15,7 @@ In the config file, you can specify which dataset is used by changing the track 
 - "In-the-Wild" dataset: https://deepfake-total.com/in_the_wild
 
 ## Training
-The file `train.py` contains training and validation steps for our model with SAMO as the loss function.
+The file `train_samo.py` contains training and validation steps for our model with SAMO as the loss function.
 
 To train our model:
 ```
