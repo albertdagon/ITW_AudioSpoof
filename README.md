@@ -1,5 +1,4 @@
-# ITW Audio Spoof
-
+# ITW Audio Spoof - SAMO Experimentation
 ## Requirements
 - Install dependencies:
 
